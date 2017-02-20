@@ -1,15 +1,15 @@
-# nothing here
-''' renders text from csv file
-use snippets....
+'''Renders text from a CSV file to textures
+and applies them to multiple objects.
+Use snippets...
 import os, sys; sys.path.append(os.path.dirname(bpy.data.filepath)); import texture_painter
 import importlib; importlib.reload(texture_painter); texture_painter.go()
 '''
-import bpy
+
 import codecs
 import csv
-import os
 from PIL import Image, ImageFont, ImageDraw
-
+import os
+import bpy
 
 def get_backers(csv_filename):
     with codecs.open(csv_filename, 'r', 'utf-8-sig') as stream:
@@ -19,19 +19,31 @@ def get_backers(csv_filename):
             backer = dict(zip(header, row))
             yield backer
 
+# image size and font-size hard-coded in method
 def render_text_to_file(text_to_render, to_filename):
-    image = Image.new('RGB', (512,64)) # create Image
-    draw = ImageDraw.Draw(image) # create image-draw & font object
-    fnt = ImageFont.truetype('Daily1915.ttf',50) # draw text to image-draw
+    image = Image.new('RGB', (512,64))
+    draw = ImageDraw.Draw(image)
+    fnt = ImageFont.truetype('arial.ttf', 50)
     draw.text((0,0), text_to_render, font=fnt, fill=(255,255,255))
-    image.save(to_filename)# save image to file
+    image.save(to_filename)
 
-
-def go():
-    print("texture painter starting up")
+def read_csv():
+    # Read through the CSV
     cwd = os.path.dirname(bpy.data.filepath)
     for backer in get_backers('backers_10.csv'):
         text_to_render = backer['Name'] + ', ' + backer['Country']
-        filename = cwd + '\\texture_cache\\' + backer['Number']+ '.png'
+        filename = cwd + '\\texture_cache\\' + backer['Number'] + '.png'
         print("Rendering", text_to_render, "to", filename)
         render_text_to_file(text_to_render, filename)
+
+def throw_invalid_selection():
+    if len(bpy.context.selected_objects) == 0:
+        raise Exception("Please select exactly one prorotype object.")
+    if len(bpy.context.selected_objects) > 1:
+        raise Exception("Please select exactly one prorotype object.")
+
+def go():
+    print("Texture Painter starting up.")
+    throw_invalid_selection()
+    print("Prototype object found.")
+    # read_csv()
