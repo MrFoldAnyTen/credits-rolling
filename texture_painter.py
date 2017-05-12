@@ -42,8 +42,31 @@ def throw_invalid_selection():
     if len(bpy.context.selected_objects) > 1:
         raise Exception("Please select exactly one prorotype object.")
 
+def create_plaque(prototype, offset):
+    prototype.select = True
+    bpy.ops.object.duplicate_move(TRANSFORM_OT_translate={"value":offset})
+    new_plaque = bpy.context.selected_objects[0]
+    new_plaque.select = False
+    return new_plaque
+
+def get_offset(num, columns, spacing):
+    """Return offset from prototype position.
+
+    keyword arguments:
+    num -- the number of the object start 0
+    columns -- number of columns before wrap
+    spacing -- a tuple of (x,y) spacing between objects
+    """
+    x_offset = (num % columns) * spacing[0]
+    y_offset = (num // columns) * spacing[1]
+    return (x_offset, y_offset)
+
 def go():
     print("Texture Painter starting up.")
     throw_invalid_selection()
     print("Prototype object found.")
     # read_csv()
+
+    #prototype = bpy.context.selected_objects[0]
+    #create_plaque(prototype, (1,0,0))
+    print (get_offset(4,3,(10,10,0)))
